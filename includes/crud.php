@@ -69,7 +69,7 @@ class Database
 
     public function sql($sql)
     {
-        $this->myconn->query("SET NAMES utf8"); /* manually added for supporting utf 8 unicode characters */
+        $this->myconn->query("SET NAMES utf8mb4"); /* manually added for supporting utf 8 unicode characters */
         $query = $this->myconn->query($sql);
         // echo $query;
 
