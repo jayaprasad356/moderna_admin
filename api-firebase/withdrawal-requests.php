@@ -154,3 +154,39 @@ if (isset($_POST['get_requests']) && $_POST['get_requests'] == 1) {
     print_r(json_encode($response));
     return false;
 }
+
+if (isset($_POST['user_request']) && $_POST['user_request'] == 1) {
+
+    $user_id = $db->escapeString($fn->xss_clean($_POST['user_id']));
+    $amount = $db->escapeString($fn->xss_clean($_POST['amount']));
+    $type = $db->escapeString($fn->xss_clean($_POST['type']));
+    $message = !empty(trim($_POST['message'])) ? $db->escapeString(trim($fn->xss_clean($_POST['message']))) : 'Transaction by admin';
+
+    $balance = $fn->get_wallet_balance($user_id, 'users');
+    if ($type == 'debit' && $balance <= 0) {
+        $response['error'] = true;
+        $response['message'] = 'Balance should be greater than 0.';
+        print_r(json_encode($response));
+        return false;
+    }
+    if ($type == 'debit' && $amount > $balance) {
+        $response['error'] = true;
+        $response['message'] = 'Amount should not be greater than balance.';
+        print_r(json_encode($response));
+        return false;
+    }
+    $new_balance = $type == 'credit' ? $balance + $amount : $balance - $amount;
+    $fn->update_wallet_balance($new_balance, $user_id, 'users');
+    if ($fn->add_wallet_transaction($order_id = "", 0, $user_id, $type, $amount, $message, 'wallet_transactions')) {
+        $response['error'] = false;
+        $response['message'] = 'Withdrawal Requested Successfully';
+        print_r(json_encode($response));
+        return false;
+    } else {
+        $response['error'] = true;
+        $response['message'] = 'Some Error Occured';
+        print_r(json_encode($response));
+        return false;
+    }
+
+}

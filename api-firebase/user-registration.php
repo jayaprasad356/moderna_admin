@@ -48,17 +48,17 @@ APIs for Multi Vendor
 -------------------------------------------
 */
 
-if (!verify_token()) {
-    return false;
-}
+// if (!verify_token()) {
+//     return false;
+// }
 
 
-if (!isset($_POST['accesskey'])  || trim($_POST['accesskey']) != $access_key) {
-    $response['error'] = true;
-    $response['message'] = "No Accsess key found!";
-    print_r(json_encode($response));
-    return false;
-}
+// if (!isset($_POST['accesskey'])  || trim($_POST['accesskey']) != $access_key) {
+//     $response['error'] = true;
+//     $response['message'] = "No Accsess key found!";
+//     print_r(json_encode($response));
+//     return false;
+// }
 
 if ((isset($_POST['type'])) && ($_POST['type'] == 'verify-user')) {
     /*
@@ -382,7 +382,22 @@ if ((isset($_POST['type'])) && ($_POST['type'] == 'register')) {
                 $db->sql($sql);
                 $res = $db->getResult();
                 $usr_id = $fn->get_data($columns = ['id'], 'mobile = "' . $mobile . '"', 'users');
+                $sql = "SELECT id FROM users where referral_code = '$friends_code' ";
+                $db->sql($sql);
+                $res = $db->getResult();
+                if ($db->numRows($res) == 1) {
+                    $f_user_id = $res[0]['id'];
+                    $type = 'credit';
+                    $amount = 10;
+                    $balance = $fn->get_wallet_balance($f_user_id, 'users');
+                    $new_balance = $type == 'credit' ? $balance + $amount : $balance - $amount;
+                    $fn->update_wallet_balance($new_balance, $f_user_id, 'users');
+                    $message = 'register bonus credited for '.$name ;
+                    $fn->add_wallet_transaction($order_id = "", 0, $f_user_id, $type, $amount, $message, 'wallet_transactions');
+                    $response["friends"] = "Added Friends Code";
 
+
+                }
                 $sql = "DELETE FROM devices where fcm_id = '$fcm_id' ";
                 $db->sql($sql);
                 $res = $db->getResult();
