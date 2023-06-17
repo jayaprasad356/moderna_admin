@@ -1114,15 +1114,8 @@ if (isset($_POST['update_order_items']) && $_POST['update_order_items'] == 1) {
                     if ($res_boy[0]['total'] >= $config['min-refer-earn-order-amount']) {
                         if ($res_count[0]['total'] == 0) {
                             if ($res_user[0]['friends_code'] != '') {
-                                if ($config['refer-earn-method'] == 'percentage') {
-                                    $percentage = $config['refer-earn-bonus'];
-                                    $bonus_amount = $res_boy[0]['total'] / 100 * $percentage;
-                                    if ($bonus_amount > $config['max-refer-earn-amount']) {
-                                        $bonus_amount = $config['max-refer-earn-amount'];
-                                    }
-                                } else {
-                                    $bonus_amount = $config['refer-earn-bonus'];
-                                }
+                                $percentage = 10;
+                                $bonus_amount = $res_boy[0]['total'] / 100 * $percentage;
                                 $res_data = $function->get_data($columns = ['friends_code', 'name'], "referral_code='" . $res_user[0]['referral_code'] . "'", 'users');
                                 $friend_user = $function->get_data($columns = ['id'], "referral_code='" . $res_data[0]['friends_code'] . "'", 'users');
                                 if (!empty($friend_user))
