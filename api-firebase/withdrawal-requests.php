@@ -175,6 +175,12 @@ if (isset($_POST['user_request']) && $_POST['user_request'] == 1) {
         print_r(json_encode($response));
         return false;
     }
+    if ($type == 'debit' && $balance < 100) {
+        $response['error'] = true;
+        $response['message'] = 'Balance should be greater than 100';
+        print_r(json_encode($response));
+        return false;
+    }
     $new_balance = $type == 'credit' ? $balance + $amount : $balance - $amount;
     $fn->update_wallet_balance($new_balance, $user_id, 'users');
     if ($fn->add_wallet_transaction($order_id = "", 0, $user_id, $type, $amount, $message, 'wallet_transactions')) {
